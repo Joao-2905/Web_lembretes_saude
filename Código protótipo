@@ -1,214 +1,292 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Web Lembretes Saúde</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lembretes de Saúde</title>
+
 <style>
-  :root{
-    --bg:#f5f7fb; --card:#fff; --primary:#2563eb; --accent:#06b6d4;
-    --muted:#6b7280; --success:#10b981; --danger:#ef4444;
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  body{
-    margin:0; background:linear-gradient(180deg,var(--bg),#eef2ff 60%);
-    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
-  }
-  .container{width:100%; max-width:1100px;}
-  .card{background:var(--card); border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.08); padding:24px;}
-  button{cursor:pointer;border:0;padding:10px 16px;border-radius:8px;font-weight:600;}
-  .btn-primary{background:var(--primary);color:#fff;}
-  .btn-ghost{background:transparent;color:var(--primary);border:1px solid var(--primary);}
-  input,textarea,select{
-    width:100%; padding:8px 10px; margin-top:6px; border-radius:6px; border:1px solid #d1d5db;
-    font-size:14px;
-  }
-  h2{text-align:center;margin-bottom:20px;color:var(--primary)}
-  .hidden{display:none!important}
-  .grid{display:grid;grid-template-columns: 1fr 1fr;gap:16px}
-  .reminder-item{border:1px solid #e5e7eb;padding:10px;border-radius:8px;margin-bottom:8px;}
-  .done{text-decoration:line-through;opacity:0.6}
-  .auth-box{max-width:380px;margin:auto;text-align:center;}
-  footer{text-align:center;font-size:13px;color:var(--muted);margin-top:20px}
+:root {
+  --bg: #eef2f5;
+  --card: #ffffff;
+  --text: #222;
+  --primary: #4a90e2;
+  --danger: #e63946;
+  --warning: #ffb703;
+  --radius: 12px;
+  --shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+.dark {
+  --bg: #0d1117;
+  --card: #161b22;
+  --text: #e6edf3;
+  --primary: #4a90e2;
+  --danger: #ff5757;
+  --warning: #ffca3a;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: "Segoe UI", Arial;
+  color: var(--text);
+  transition: 0.3s;
+}
+h2 { text-align: center; margin-top: 15px; font-weight: 600; }
+.screen {
+  display: none;
+  background: var(--card);
+  max-width: 430px;
+  margin: 25px auto;
+  padding: 28px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #d0d0d0;
+  background: var(--bg);
+  color: var(--text);
+}
+button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 14px;
+  border-radius: var(--radius);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-edit { background: var(--warning); }
+.reminder {
+  background: var(--bg);
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-top: 12px;
+  border-left: 4px solid var(--primary);
+}
+.toggle-theme {
+  position: fixed;
+  top: 15px; right: 15px;
+  background: var(--card);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  display: flex; align-items:center; justify-content:center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  font-size: 18px;
+}
+.password-wrapper { position: relative; }
+.show-pass {
+  position: absolute;
+  right: 12px;
+  top: 19px;
+  cursor: pointer;
+  font-size: 17px;
+}
 </style>
 </head>
 <body>
-<div class="container">
 
-  <!-- LOGIN / CADASTRO -->
-  <div id="authPage" class="card">
-    <h2>Web Lembretes Saúde</h2>
-    <div class="auth-box" id="authBox">
-      <div>
-        <button id="btnShowLogin" class="btn-primary" style="width:48%">Login</button>
-        <button id="btnShowReg" class="btn-ghost" style="width:48%">Cadastro</button>
-      </div>
-      <div id="authForms" style="margin-top:20px;text-align:left"></div>
-    </div>
-  </div>
+<div class="toggle-theme" onclick="toggleTheme()">🌙</div>
 
-  <!-- APP -->
-  <div id="appPage" class="hidden">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3>Olá, <span id="userName"></span></h3>
-        <button id="btnLogout" class="btn-ghost">Sair</button>
-      </div>
-
-      <hr style="margin:12px 0">
-
-      <form id="reminderForm">
-        <input type="hidden" id="reminderId">
-        <label>Título</label>
-        <input id="title" required placeholder="Ex: Tomar remédio">
-        <label>Descrição</label>
-        <textarea id="description" rows="2"></textarea>
-        <label>Data e hora</label>
-        <input id="when" type="datetime-local" required>
-        <label>Repetição</label>
-        <select id="repeat">
-          <option value="none">Sem repetição</option>
-          <option value="daily">Diário</option>
-          <option value="weekly">Semanal</option>
-        </select>
-        <label>Tags</label>
-        <input id="tags" placeholder="exercício, vitamina">
-        <br>
-        <button class="btn-primary" type="submit">Salvar</button>
-      </form>
-    </div>
-
-    <div class="card" style="margin-top:16px">
-      <h3>Meus lembretes</h3>
-      <div id="reminderList"></div>
-    </div>
-    <footer>Web Lembretes Saúde — seus dados ficam apenas no navegador.</footer>
-  </div>
+<!-- LOGIN -->
+<div id="loginScreen" class="screen" style="display:block;">
+<h2>Login</h2>
+<div class="password-wrapper">
+  <input type="text" id="loginUser" placeholder="Usuário">
+</div>
+<div class="password-wrapper">
+  <input type="password" id="loginPass" placeholder="Senha">
+  <span class="show-pass" onclick="togglePassword('loginPass', this)">👁</span>
+</div>
+<button class="btn-primary" onclick="login()">Entrar</button>
+<button onclick="showScreen('registerScreen')">Criar Conta</button>
 </div>
 
+<!-- CADASTRO -->
+<div id="registerScreen" class="screen">
+<h2>Cadastro</h2>
+<input type="text" id="regUser" placeholder="Usuário">
+<div class="password-wrapper">
+  <input type="password" id="regPass" placeholder="Senha">
+  <span class="show-pass" onclick="togglePassword('regPass', this)">👁</span>
+</div>
+<button class="btn-primary" onclick="register()">Cadastrar</button>
+<button onclick="showScreen('loginScreen')">Voltar</button>
+</div>
+
+<!-- SISTEMA -->
+<div id="mainScreen" class="screen">
+<h2>Lembretes</h2>
+<input type="text" id="tituloLembrete" placeholder="Título do lembrete">
+<input type="datetime-local" id="dataHoraLembrete">
+
+<button id="btnAddEdit" class="btn-primary" onclick="adicionarLembrete()">Adicionar</button>
+
+<div id="listaLembretes"></div>
+
+<button class="btn-danger" onclick="logout()">Sair</button>
+</div>
+
+
 <script>
-const USERS_KEY='wl_users';const CURR_KEY='wl_current';const REM_KEY=id=>'wl_rem_'+id;
-async function sha256Hex(m){const d=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')}
-function loadUsers(){return JSON.parse(localStorage.getItem(USERS_KEY)||'[]')}
-function saveUsers(u){localStorage.setItem(USERS_KEY,JSON.stringify(u))}
-function setUser(u){localStorage.setItem(CURR_KEY,JSON.stringify(u))}
-function getUser(){return JSON.parse(localStorage.getItem(CURR_KEY)||'null')}
-function logout(){localStorage.removeItem(CURR_KEY);location.reload()}
-function loadRem(u){return JSON.parse(localStorage.getItem(REM_KEY(u))||'[]')}
-function saveRem(u,r){localStorage.setItem(REM_KEY(u),JSON.stringify(r))}
-
-const authPage=document.getElementById('authPage')
-const appPage=document.getElementById('appPage')
-const authForms=document.getElementById('authForms')
-const userName=document.getElementById('userName')
-const reminderList=document.getElementById('reminderList')
-let currentUser=null;let reminders=[]
-
-document.getElementById('btnShowLogin').onclick=()=>renderLogin()
-document.getElementById('btnShowReg').onclick=()=>renderReg()
-document.getElementById('btnLogout').onclick=()=>logout()
-
-function renderLogin(){
-authForms.innerHTML=`
-<label>Email</label><input id="loginEmail" type="email">
-<label>Senha</label><input id="loginPass" type="password">
-<br><button id="btnLogin" class="btn-primary" style="width:100%">Entrar</button>
-`
-document.getElementById('btnLogin').onclick=onLogin
+// -------------------- TEMA --------------------
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
 }
-function renderReg(){
-authForms.innerHTML=`
-<label>Nome</label><input id="regName">
-<label>Email</label><input id="regEmail" type="email">
-<label>Senha</label><input id="regPass" type="password">
-<br><button id="btnRegister" class="btn-primary" style="width:100%">Cadastrar</button>
-`
-document.getElementById('btnRegister').onclick=onRegister
+if(localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+
+// -------------------- NAVEGAÇÃO --------------------
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
 }
 
-async function onRegister(){
-const n=document.getElementById('regName').value.trim()
-const e=document.getElementById('regEmail').value.trim().toLowerCase()
-const p=document.getElementById('regPass').value
-if(!n||!e||p.length<6)return alert('Preencha todos os campos (senha >=6).')
-let users=loadUsers()
-if(users.some(u=>u.email===e))return alert('E-mail já cadastrado.')
-const hash=await sha256Hex(p)
-const u={id:Date.now().toString(36),name:n,email:e,passHash:hash}
-users.push(u);saveUsers(users);setUser(u);startApp()
+// -------------------- USUÁRIOS --------------------
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let loggedUser = localStorage.getItem("loggedUser");
+
+function register() {
+  let u = regUser.value.trim();
+  let p = regPass.value.trim();
+
+  if(!u || !p) return alert("Preencha todos os campos!");
+  if(users.some(x => x.user === u)) return alert("Usuário já existe!");
+
+  users.push({ user: u, pass: p });
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Cadastro realizado!");
+  showScreen("loginScreen");
 }
 
-async function onLogin(){
-const e=document.getElementById('loginEmail').value.trim().toLowerCase()
-const p=document.getElementById('loginPass').value
-let users=loadUsers();const u=users.find(x=>x.email===e)
-if(!u)return alert('Usuário não encontrado.')
-const hash=await sha256Hex(p)
-if(hash!==u.passHash)return alert('Senha incorreta.')
-setUser(u);startApp()
+function login() {
+  let u = loginUser.value.trim();
+  let p = loginPass.value.trim();
+
+  let exists = users.find(x => x.user === u && x.pass === p);
+  if(!exists) return alert("Credenciais inválidas!");
+
+  loggedUser = u;
+  localStorage.setItem("loggedUser", u);
+  showScreen("mainScreen");
+  renderizarLembretes();
 }
 
-function startApp(){
-authPage.classList.add('hidden')
-appPage.classList.remove('hidden')
-currentUser=getUser()
-userName.textContent=currentUser.name
-reminders=loadRem(currentUser.id)
-renderReminders()
-document.getElementById('reminderForm').onsubmit=saveReminder
+function logout() {
+  loggedUser = null;
+  localStorage.removeItem("loggedUser");
+  showScreen("loginScreen");
 }
 
-function saveReminder(ev){
-ev.preventDefault()
-const id=document.getElementById('reminderId').value||Date.now().toString(36)
-const title=document.getElementById('title').value.trim()
-if(!title)return
-const obj={
-id,title,
-description:document.getElementById('description').value,
-when:document.getElementById('when').value,
-repeat:document.getElementById('repeat').value,
-tags:document.getElementById('tags').value,
-done:false
-}
-const idx=reminders.findIndex(r=>r.id===id)
-if(idx>=0)reminders[idx]=obj;else reminders.push(obj)
-saveRem(currentUser.id,reminders)
-ev.target.reset()
-renderReminders()
+if(loggedUser) showScreen("mainScreen");
+
+// -------------------- SENHA VISUAL --------------------
+function togglePassword(inputId, eyeIcon) {
+  let input = document.getElementById(inputId);
+  if(input.type === "password") {
+    input.type = "text";
+    eyeIcon.textContent = "🙈";
+  } else {
+    input.type = "password";
+    eyeIcon.textContent = "👁";
+  }
 }
 
-function renderReminders(){
-reminderList.innerHTML=''
-if(reminders.length===0){reminderList.innerHTML='<p>Nenhum lembrete.</p>';return}
-reminders.sort((a,b)=>new Date(a.when)-new Date(b.when))
-for(const r of reminders){
-const div=document.createElement('div')
-div.className='reminder-item'+(r.done?' done':'')
-div.innerHTML=`<b>${r.title}</b><br><small>${r.when}</small><br>${r.description||''}
-<br><button class="btn-ghost" data-id="${r.id}">Concluir</button>
-<button class="btn-ghost" data-del="${r.id}">Excluir</button>`
-reminderList.appendChild(div)
+// -------------------- NOTIFICAÇÕES --------------------
+function pedirPermissao() {
+  if("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
 }
-document.querySelectorAll('[data-id]').forEach(b=>b.onclick=e=>toggleDone(e.target.dataset.id))
-document.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>delReminder(e.target.dataset.del))
+pedirPermissao();
+
+function enviarNotificacao(titulo, msg) {
+  if("Notification" in window && Notification.permission === "granted") {
+    new Notification(titulo, { body: msg });
+  } else {
+    alert(`${titulo}\n\n${msg}`);
+  }
 }
 
-function toggleDone(id){
-const r=reminders.find(x=>x.id===id);if(!r)return
-r.done=!r.done;saveRem(currentUser.id,reminders);renderReminders()
+// -------------------- LEMBRETES --------------------
+let lembretes = JSON.parse(localStorage.getItem("lembretes")) || [];
+let editId = null;
+
+function salvarLembretes() {
+  localStorage.setItem("lembretes", JSON.stringify(lembretes));
+  renderizarLembretes();
 }
 
-function delReminder(id){
-if(!confirm('Excluir lembrete?'))return
-reminders=reminders.filter(r=>r.id!==id)
-saveRem(currentUser.id,reminders);renderReminders()
+function adicionarLembrete() {
+  let titulo = tituloLembrete.value.trim();
+  let dataHora = dataHoraLembrete.value;
+
+  if(!titulo || !dataHora) return alert("Preencha o título e data!");
+
+  if(editId === null) {
+    lembretes.push({ id: Date.now(), user: loggedUser, titulo, dataHora, notificado:false });
+  } else {
+    let l = lembretes.find(x => x.id === editId);
+    l.titulo = titulo;
+    l.dataHora = dataHora;
+    editId = null;
+    btnAddEdit.textContent = "Adicionar";
+  }
+
+  salvarLembretes();
+  tituloLembrete.value = "";
+  dataHoraLembrete.value = "";
 }
 
-window.onload=()=>{
-const u=getUser()
-if(u)startApp();else renderLogin()
+function editar(id) {
+  let l = lembretes.find(x => x.id === id);
+  tituloLembrete.value = l.titulo;
+  dataHoraLembrete.value = l.dataHora;
+  editId = id;
+  btnAddEdit.textContent = "Salvar Edição";
 }
+
+function deletar(id) {
+  lembretes = lembretes.filter(l => l.id !== id);
+  salvarLembretes();
+}
+
+function renderizarLembretes() {
+  let lista = document.getElementById("listaLembretes");
+  lista.innerHTML = "";
+
+  lembretes.filter(l => l.user === loggedUser).forEach(l => {
+    let div = document.createElement("div");
+    div.className = "reminder";
+    div.innerHTML = `
+      <b>${l.titulo}</b><br>
+      ${new Date(l.dataHora).toLocaleString()}<br><br>
+      <button class="btn-edit" onclick="editar(${l.id})">Editar</button>
+      <button class="btn-danger" onclick="deletar(${l.id})">Excluir</button>
+    `;
+    lista.appendChild(div);
+  });
+}
+
+// Verificar lembretes a cada 10s
+setInterval(() => {
+  let agora = new Date();
+  lembretes.forEach(l => {
+    if(!l.notificado && new Date(l.dataHora) <= agora) {
+      enviarNotificacao("Lembrete de Saúde", l.titulo);
+      l.notificado = true;
+      salvarLembretes();
+    }
+  });
+}, 10000);
+
 </script>
 </body>
 </html>
