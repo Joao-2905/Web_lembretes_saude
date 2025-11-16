@@ -16,7 +16,7 @@
 | Login                    | ✔ Pass | Funcionou corretamente |
 | Editar lembrete          | ✔ Pass | Edição salva e exibida corretamente |
 | Excluir lembrete         | ✔ Pass | Remoção executada com sucesso |
-| Notificação              | ❌ Fail | Sistema não apresenta notificação ou não dispara o evento esperado |
+| Notificação              | ✔ Pass | Sistema apresenta notificação com sucesso |
 
 ---
 
@@ -28,17 +28,17 @@
 | TC02 | Login              | Inserir credenciais válidas  | Usuário autenticado e redirecionado                   | OK                             | ✔ Pass |
 | TC03 | Editar lembrete    | Editar conteúdo e salvar     | Alterações persistidas e atualizadas na listagem      | OK                             | ✔ Pass |
 | TC04 | Excluir lembrete   | Excluir lembrete existente    | Item removido do sistema e interface                  | OK                             | ✔ Pass |
-| TC05 | Notificação        | Aguardar disparo de lembrete | Notificação ou alerta exibido para o usuário          | Não exibiu                     | ❌ Fail |
+| TC05 | Notificação        | Aguardar disparo de lembrete | Notificação ou alerta exibido para o usuário          | OK                      | ✔ Pass |
 
 ---
 
 ## 📊 Conclusões da Sprint
 
 - **Total de testes executados:** 5  
-- **Passaram:** 4  
-- **Falharam:** 1  
-- **Percentual de sucesso:** **80%**  
-- O sistema está funcional para as operações principais, mas o recurso de notificação ainda não atende ao requisito esperado.
+- **Passaram:** 5  
+- **Falharam:** 0  
+- **Percentual de sucesso:** **100%**  
+- O sistema está funcional para todas as operações principais
 
 ---
 
@@ -46,7 +46,6 @@
 
 | Item | Ação Necessária | Prioridade |
 |-------|------------------|:----------:|
-| Notificação | Implementar ou corrigir lógica de disparo | 🔺 Alta |
 | Experiência do usuário | Melhorar feedback visual de ações | 🟡 Média |
 | Testes automatizados | Incluir testes com Cypress, Jest, Selenium ou Playwright | 🟢 Baixa |
 
