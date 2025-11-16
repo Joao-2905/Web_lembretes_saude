@@ -3,7 +3,7 @@
 **Projeto:** Web_lembretes_saude  
 **Descrição:** Aplicação web para cadastro, gerenciamento e acompanhamento de lembretes de saúde  
 **Sprint:** TP5 – Desenvolvimento + Testes  
-**Data:** _(preencher)_  
+**Data:** 16/11/2025
 **Responsável pelos testes:** **Joao Paulo Gomes dos Santos**
 
 ---
